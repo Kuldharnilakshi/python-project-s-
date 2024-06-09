@@ -1,0 +1,330 @@
+import mysql.connector
+
+# Connect to MySQL
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="nilakshi@12345678",
+    database="recipe_recommendation"
+)
+
+# Create cursor
+mycursor = mydb.cursor()
+
+# Function to insert data into veg_nonveg table
+def insert_veg_nonveg(cuisine, dish_name, recipe_details):
+    sql = "INSERT INTO veg_nonveg (cuisine, dish_name, recipe_details) VALUES (%s, %s, %s)"
+    val = (cuisine, dish_name, recipe_details)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+# Function to insert data into restrictions table
+def insert_restriction(diet_restrictions, disease, recommended_dish):
+    sql = "INSERT INTO restrictions (diet_restrictions, disease, recommended_dish) VALUES (%s, %s, %s)"
+    val = (diet_restrictions, disease, recommended_dish)
+    mycursor.execute(sql, val)
+    mydb.commit()
+
+# Function to retrieve data from veg_nonveg table
+def get_veg_nonveg_table():
+    mycursor.execute("SELECT * FROM veg_nonveg")
+    return mycursor.fetchall()
+
+# Function to retrieve data from restrictions table
+def get_restrictions_table():
+    mycursor.execute("SELECT * FROM restrictions")
+    return mycursor.fetchall()
+
+def suggest_recipe(ingredients, recipes):
+    matched_recipes = []
+    for recipe, recipe_ingredients in recipes.items():
+        if all(ingredient in recipe_ingredients for ingredient in ingredients):
+            matched_recipes.append(recipe)
+    return matched_recipes
+
+res_veg_recipes = {
+    'diabetes': {
+        'Vegetable Stir-Fry': ['Assorted vegetables (broccoli, bell peppers, carrots, etc.)', 'Tofu', 'Low-sodium soy sauce', 'Brown rice or quinoa'],
+        'Chickpea Salad': ['Chickpeas', 'Cherry tomatoes', 'Cucumber', 'Red onion', 'Feta cheese (optional)', 'Lemon vinaigrette dressing']
+    },
+    'asthma': {
+        'Spinach and Berry Smoothie': ['Fresh spinach', 'Mixed berries (blueberries, strawberries, raspberries)', 'Banana', 'Almond milk', 'Flaxseeds or chia seeds'],
+        'Quinoa Salad with Avocado and Walnuts': ['Cooked quinoa', 'Avocado', 'Walnuts', 'Cucumber', 'Cherry tomatoes', 'Lemon-tahini dressing']
+    },
+    'thyroid': {
+        'Seaweed Salad': ['Mixed seaweed (wakame, hijiki, etc.)', 'Cucumber', 'Carrot', 'Sesame seeds', 'Rice vinegar', 'Soy sauce', 'Sesame oil'],
+        'Brazil Nut and Spinach Salad': ['Baby spinach', 'Brazil nuts', 'Dried cranberries', 'Red onion', 'Balsamic vinaigrette dressing']
+    },
+    'blood_pressure': {
+        'Mediterranean Chickpea Salad': ['Chickpeas', 'Cucumber', 'Tomatoes', 'Red onion', 'Kalamata olives', 'Feta cheese', 'Lemon juice', 'Olive oil', 'Herbs'],
+        'Stir-Fried Tofu with Broccoli and Cashews': ['Extra-firm tofu', 'Broccoli florets', 'Cashews', 'Soy sauce', 'Sesame oil', 'Rice vinegar', 'Garlic', 'Ginger']
+    }
+}
+
+res_non_veg_recipes = {
+    'diabetes': {
+        'Grilled Chicken with Roasted Vegetables': ['Chicken breast', 'Assorted vegetables (bell peppers, zucchini, carrots)', 'Olive oil', 'Herbs and spices'],
+        'Salmon with Quinoa and Asparagus': ['Salmon fillets', 'Quinoa', 'Asparagus spears', 'Lemon', 'Olive oil', 'Garlic', 'Black pepper']
+    },
+    'asthma': {
+        'Grilled Shrimp and Vegetable Skewers': ['Shrimp', 'Assorted vegetables (bell peppers, cherry tomatoes, onions)', 'Olive oil', 'Lemon', 'Garlic', 'Herbs'],
+        'Turkey and Avocado Wrap': ['Sliced turkey breast', 'Whole grain wrap', 'Avocado', 'Lettuce', 'Tomato', 'Mustard']
+    },
+    'thyroid': {
+        'Grilled Steak with Roasted Vegetables': ['Steak', 'Assorted vegetables (sweet potatoes, Brussels sprouts, carrots)', 'Olive oil', 'Herbs and spices'],
+        'Fish Tacos with Mango Salsa': ['White fish fillets', 'Whole grain tortillas', 'Mango', 'Red onion', 'Cilantro', 'Lime']
+    },
+    'blood_pressure': {
+        'Lemon Garlic Herb Chicken': ['Chicken thighs or breasts', 'Lemon', 'Garlic', 'Olive oil', 'Herbs (rosemary, thyme, parsley)', 'Black pepper'],
+        'Pan-Seared Sea Bass with Green Beans': ['Sea bass fillets', 'Green beans', 'Lemon', 'Butter', 'Garlic', 'Black pepper']
+    }
+}
+
+veg_menu = {
+    'chinese': ['1.veg_manchurian', '2.veg_noodles', '3.soyabean chili', '4.fried_rice'],
+    'italian': ['1.veg_pizza', '2.veg_burger', '3.veg_pasta'],
+    'punjabi': ['1.lassi', '2.shev_bhaji', '3.paneer'],
+    'south_indian': ['1.idli', '2.dosa', '3.sambhar'],
+    'mexican': ['1.quesadillas', '2.burritos', '3.tacos'],
+    'thai': ['1.pad_thai', '2.green_curry', '3.tom_yum_soup'],
+    'french': ['1.croissant', '2.quiche', '3.ratatouille'],
+    'mediterranean': ['1.hummus', '2.falafel', '3.shawarma']
+}
+
+non_veg_menu = {
+    'chinese': ['1.chicken_manchurian', '2.chicken_noodles', '3.chicken_chili', '4.shrimp_fried_rice'],
+    'italian': ['1.chicken_pizza', '2.chicken_burger', '3.seafood_pasta'],
+    'punjabi': ['1.butter_chicken', '2.chicken_tikka', '3.fish_curry'],
+    'south_indian': ['1.chicken_masala_dosa', '2.mutton_biryani', '3.fish_curry'],
+    'mexican': ['1.chicken_tacos', '2.beef_burritos', '3.shrimp_quesadillas'],
+    'thai': ['1.thai_green_curry_chicken', '2.thai_spicy_basil_beef', '3.tom_yum_soup_with_shrimp'],
+    'french': ['1.coq_au_vin', '2.escargot', '3.boeuf_bourguignon'],
+    'mediterranean': ['1.lamb_shawarma', '2.grilled_chicken_kofta', '3.grilled_fish_with_tahini']
+}
+
+veg_recipe_details = {
+    'veg_manchurian': ['vegetables', 'soy sauce', 'corn flour', 'spices'],
+    'veg_noodles': ['noodles', 'vegetables', 'soy sauce', 'spices'],
+    'soyabean chili': ['soybeans', 'chili sauce', 'onions', 'spices'],
+    'fried_rice': ['rice', 'vegetables', 'soy sauce', 'spices'],
+    'veg_pizza': ['pizza base', 'tomato sauce', 'vegetables', 'cheese'],
+    'veg_burger': ['burger bun', 'vegetable patty', 'lettuce', 'tomato', 'cheese'],
+    'veg_pasta': ['pasta', 'tomato sauce', 'vegetables', 'cheese'],
+    'lassi': ['yogurt', 'sugar', 'water', 'cardamom'],
+    'shev_bhaji': ['gram flour', 'vegetables', 'spices'],
+    'paneer': ['paneer', 'onions', 'tomatoes', 'spices'],
+    'idli': ['idli batter', 'sambar', 'chutney'],
+    'dosa': ['dosa batter', 'potato masala', 'sambar', 'chutney'],
+    'sambhar': ['toor dal', 'vegetables', 'tamarind', 'spices'],
+    'quesadillas': ['tortillas', 'cheese', 'vegetables', 'salsa'],
+    'burritos': ['tortillas', 'rice', 'beans', 'vegetables', 'salsa'],
+    'tacos': ['tortillas', 'minced meat or beans', 'lettuce', 'tomato', 'cheese'],
+    'pad_thai': ['rice noodles', 'tofu', 'bean sprouts', 'peanuts', 'tamarind sauce'],
+    'green_curry': ['coconut milk', 'green curry paste', 'tofu or vegetables', 'basil leaves'],
+    'tom_yum_soup': ['lemongrass', 'galangal', 'kaffir lime leaves', 'mushrooms', 'chili'],
+    'croissant': ['flour', 'butter', 'yeast', 'sugar', 'salt'],
+    'quiche': ['pie crust', 'eggs', 'cream', 'cheese', 'vegetables'],
+    'ratatouille': ['eggplant', 'zucchini', 'bell peppers', 'tomatoes', 'onions', 'garlic', 'herbs'],
+    'hummus': ['chickpeas', 'tahini', 'olive oil', 'garlic', 'lemon juice'],
+    'falafel': ['chickpeas', 'herbs', 'spices', 'flour'],
+    'shawarma': ['chicken or lamb', 'pita bread', 'yogurt sauce', 'pickles', 'vegetables']
+}
+
+non_veg_recipe_details = {
+    'chicken_manchurian': ['chicken', 'soy sauce', 'corn flour', 'spices'],
+    'chicken_noodles': ['noodles', 'chicken', 'soy sauce', 'spices'],
+    'chicken_chili': ['chicken', 'chili sauce', 'onions', 'spices'],
+    'shrimp_fried_rice': ['rice', 'shrimp', 'vegetables', 'soy sauce', 'spices'],
+    'chicken_pizza': ['pizza base', 'tomato sauce', 'chicken', 'cheese'],
+    'chicken_burger': ['burger bun', 'chicken patty', 'lettuce', 'tomato', 'cheese'],
+    'seafood_pasta': ['pasta', 'seafood mix (shrimp, mussels, squid)', 'tomato sauce', 'cheese'],
+    'butter_chicken': ['chicken', 'butter', 'tomato sauce', 'cream', 'spices'],
+    'chicken_tikka': ['chicken', 'yogurt', 'spices', 'ginger', 'garlic'],
+    'fish_curry': ['fish', 'tomato sauce', 'coconut milk', 'spices'],
+    'chicken_masala_dosa': ['dosa batter', 'chicken masala', 'sambar', 'chutney'],
+    'mutton_biryani': ['mutton', 'rice', 'spices', 'yogurt', 'saffron'],
+    'chicken_tacos': ['tortillas', 'chicken', 'lettuce', 'tomato', 'cheese'],
+    'beef_burritos': ['tortillas', 'beef', 'rice', 'beans', 'salsa'],
+    'shrimp_quesadillas': ['tortillas', 'shrimp', 'cheese', 'vegetables', 'salsa'],
+    'thai_green_curry_chicken': ['chicken', 'coconut milk', 'green curry paste', 'bamboo shoots', 'basil leaves'],
+    'thai_spicy_basil_beef': ['beef', 'basil leaves', 'chili', 'soy sauce', 'fish sauce'],
+    'tom_yum_soup_with_shrimp': ['shrimp', 'lemongrass', 'galangal', 'kaffir lime leaves', 'mushrooms', 'chili'],
+    'coq_au_vin': ['chicken', 'red wine', 'bacon', 'mushrooms', 'onions', 'carrots'],
+    'escargot': ['escargot', 'butter', 'garlic', 'parsley'],
+    'boeuf_bourguignon': ['beef', 'red wine', 'onions', 'carrots', 'mushrooms', 'bacon'],
+    'lamb_shawarma': ['lamb', 'pita bread', 'yogurt sauce', 'pickles', 'vegetables'],
+    'grilled_chicken_kofta': ['ground chicken', 'onions', 'spices', 'yogurt sauce'],
+    'grilled_fish_with_tahini': ['fish', 'tahini sauce', 'lemon juice', 'garlic', 'spices']
+}
+
+
+def get_compatibility_score(matched_recipes):
+    return int((com / len(matched_recipes)) * 100)
+
+while True:
+    print("Welcome to XYZ restaurant!")
+
+    vnv = input("What do you like: veg or non-veg? ")
+
+    if vnv.lower() == 'veg':
+        print("1. Chinese\n2. Italian\n3. Punjabi\n4. South Indian\n5. Mexican\n6. Thai\n7. French\n8. Mediterranean")
+        res = int(input("Enter the type of recipe you want (Enter the corresponding number): "))
+        if res in range(1, 9):
+            cuisine = list(veg_menu.keys())[res - 1]
+            print("Here are the vegetarian dishes in cuisine:", cuisine)
+            for dish in veg_menu[cuisine]:
+                print(dish)
+        else:
+            print("Invalid choice!")
+
+        ch = input("Do you have any diet restrictions? (yes/no) ")
+        if ch.lower() == 'no':
+            print("The recipes available for you are:")
+            for recipe, types in veg_menu.items():
+                print(recipe)
+                for i in types:
+                    print(i)
+            user_input = input("Enter ingredients which you want in your recipe (comma-separated): ").strip().split(',')
+            matched_recipes = suggest_recipe(user_input, veg_recipe_details)
+            if matched_recipes:
+                print("You can try these recipes:")
+                for r in matched_recipes:
+                    print("- ", r)
+                com = int(input("how many recipes are match with your choice"))
+                print("Your compatibility score is:", get_compatibility_score(matched_recipes))
+            else:
+                print("Sorry, no recipes match the provided ingredients.")
+            rating = input("Rate this recipe out of 5 stars: ")
+            if rating.isdigit() and 1 <= int(rating) <= 5:
+                print("Thank you visiting!")
+            else:
+                print("Invalid rating. Please enter a number between 1 and 5.")
+
+        else:
+            print("Which restrictions do you have?")
+            print("1. Diabetes\n2. Asthma\n3. Thyroid\n4. Blood Pressure")
+            res = int(input("Enter your choice: "))
+            if res == 1:
+                print("Recommended non-vegetarian recipes for Diabetes:")
+                for recipe in res_veg_recipes['diabetes']:
+                    print(recipe)
+            elif res == 2:
+                print("Recommended non-vegetarian recipes for Asthma:")
+                for recipe in res_veg_recipes['asthma']:
+                    print(recipe)
+            elif res == 3:
+                print("Recommended non-vegetarian recipes for Thyroid:")
+                for recipe in res_veg_recipes['thyroid']:
+                    print(recipe)
+            elif res == 4:
+                print("Recommended non-vegetarian recipes for Blood Pressure:")
+                for recipe in res_veg_recipes['blood Pressure']:
+                    print(recipe)
+            else:
+                print("Invalid choice")
+
+
+            user_input = input("Enter ingredients which you want in your recipe (comma-separated): ").strip().split(',')
+            matched_recipes = suggest_recipe(user_input, res_veg_recipes)
+            if matched_recipes:
+                print("You can try these recipes:")
+                for r in matched_recipes:
+                    print("- ", r)
+                com = int(input("how many recipes are match with your choice"))
+                print("Your compatibility score is:", get_compatibility_score(matched_recipes))
+            else:
+                print("Sorry, no recipes match the provided ingredients.")
+            rating = input("Rate this recipe out of 5 stars: ")
+            if rating.isdigit() and 1 <= int(rating) <= 5:
+                print("Thank you visiting!")
+            else:
+                print("Invalid rating. Please enter a number between 1 and 5.")
+
+    elif vnv.lower() == 'non-veg':
+        print("1. Chinese\n2. Italian\n3. Punjabi\n4. South Indian\n5. Mexican\n6. Thai\n7. French\n8. Mediterranean")
+        res = int(input("Enter the type of recipe you want (Enter the corresponding number): "))
+        if res in range(1, 9):
+            cuisine = list(non_veg_menu.keys())[res - 1]
+            print("Here are the non-vegetarian dishes in cuisine:", cuisine)
+            for dish in non_veg_menu[cuisine]:
+                print(dish)
+        else:
+            print("Invalid choice!")
+        ch = input("Do you have any diet restrictions? (yes/no) ")
+        if ch.lower() == 'no':
+            print("The non-veg recipes available for you are:")
+            for recipe, types in non_veg_menu.items():
+                print(recipe)
+                for i in types:
+                    print(i)
+            user_input = input("Enter ingredients which you want in your recipe (comma-separated):  ").strip().split(',')
+            matched_recipes = suggest_recipe(user_input, non_veg_recipe_details)
+            if matched_recipes:
+                print("You can try these recipes:")
+                for r in matched_recipes:
+                    print("- ", r)
+                com = int(input("how many recipes are match with your choice"))
+                print("Your compatibility score is:", get_compatibility_score(matched_recipes))
+            else:
+                print("Sorry, no recipes match the provided ingredients.")
+            rating = input("Rate this recipe out of 5 stars: ")
+            if rating.isdigit() and 1 <= int(rating) <= 5:
+                print("Thank you visiting!")
+            else:
+                print("Invalid rating. Please enter a number between 1 and 5.")
+
+        else:
+            print("Which restrictions do you have?")
+            print("1. Diabetes\n2. Asthma\n3. Thyroid\n4. Blood Pressure")
+            res = int(input("Enter your choice: "))
+            if res == 1:
+                print("Recommended non-vegetarian recipes for Diabetes:")
+                for recipe in res_non_veg_recipes['diabetes']:
+                    print(recipe)
+            elif res == 2:
+                print("Recommended non-vegetarian recipes for Asthma:")
+                for recipe in res_non_veg_recipes['asthma']:
+                    print(recipe)
+            elif res == 3:
+                print("Recommended non-vegetarian recipes for Thyroid:")
+                for recipe in res_non_veg_recipes['thyroid']:
+                    print(recipe)
+            elif res == 4:
+                print("Recommended non-vegetarian recipes for Blood Pressure:")
+                for recipe in res_non_veg_recipes['blood Pressure']:
+                    print(recipe)
+            else:
+                print("Invalid choice")
+
+            user_input = input("Enter ingredients which you want in your recipe (comma-separated): ").strip().split(',')
+            matched_recipes = suggest_recipe(user_input, res_non_veg_recipes)
+            if matched_recipes:
+                print("You can try these recipes:")
+                for r in matched_recipes:
+                    print("- ", r)
+                com = int(input("how many recipes are match with your choice"))
+                print("Your compatibility score is:", get_compatibility_score(matched_recipes))
+            else:
+                print("Sorry, no recipes match the provided ingredients.")
+            rating = input("Rate this recipe out of 5 stars: ")
+            if rating.isdigit() and 1 <= int(rating) <= 5:
+                print("Thank you visiting !")
+            else:
+                print("Invalid rating. Please enter a number between 1 and 5.")
+
+    else:
+        print("Please check the spelling")
+
+    cont = input("Do you want to continue? (yes/no): ")
+    if cont.lower() != 'yes':
+        print("Thank you for visiting XYZ restaurant!")
+        break
+
+# Displaying the contents of the tables
+print("Contents of veg_nonveg table:")
+for row in get_veg_nonveg_table():
+    print(row)
+
+print("Contents of restrictions table:")
+for row in get_restrictions_table():
+    print(row)
