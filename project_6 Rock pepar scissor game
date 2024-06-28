@@ -1,0 +1,40 @@
+import random
+import tkinter as tk
+from tkinter import messagebox
+
+def play_game(user_choice):
+    choices = ["Rock", "Paper", "Scissors"]
+    computer_choice = random.randint(0, 2)
+    
+    user_choice_name = choices[user_choice]
+    computer_choice_name = choices[computer_choice]
+    
+    if user_choice == computer_choice:
+        result = "It's a draw."
+    elif (user_choice == 0 and computer_choice == 2) or \
+         (user_choice == 1 and computer_choice == 0) or \
+         (user_choice == 2 and computer_choice == 1):
+        result = "You win!"
+    else:
+        result = "You lose."
+    
+    messagebox.showinfo("Result", f"You chose: {user_choice_name}\nComputer chose: {computer_choice_name}\n\n{result}")
+
+def on_button_click(choice):
+    play_game(choice)
+
+# Create the main window
+root = tk.Tk()
+root.title("Rock Paper Scissors")
+
+# Create and place buttons with text
+btn_rock = tk.Button(root, text="Rock", command=lambda: on_button_click(0), height=2, width=10)
+btn_paper = tk.Button(root, text="Paper", command=lambda: on_button_click(1), height=2, width=10)
+btn_scissors = tk.Button(root, text="Scissors", command=lambda: on_button_click(2), height=2, width=10)
+
+btn_rock.pack(pady=10)
+btn_paper.pack(pady=10)
+btn_scissors.pack(pady=10)
+
+# Start the GUI event loop
+root.mainloop()
