@@ -1,0 +1,41 @@
+import time
+print("please insert your card")
+time.sleep(3)
+password=1234
+pin=int(input("enter your pin "))
+balance=5000
+if pin==password:
+    while True:
+        print("""
+                 1=balance
+                 2=withdrawal balance 
+                 3=deposite balance
+                 4=exit
+            """)
+        
+        try:
+            option=int(input("please enter your choice: "))
+        except:
+            print("please enter valid option")
+        
+        if option==1:
+            print("your balance is",balance)
+        if option==2:
+            withdraw=int(input("please enter withdrow ammount :"))
+            if(withdraw>balance):
+                print("you do not have sufficient balance to withdraw\n please enter valid amount")
+            else:
+                print(withdraw,"rupees withdraw from your account ")
+                balance=balance-withdraw
+        if option==3:
+            deposite=int(input("enter the ammount you want to deposit: "))
+            balance=deposite+balance
+            print(deposite,"amount is deposited in your account")
+        if option==4:
+            print("Take your card ")
+            print("Thank you!!...visit again")
+            break
+            
+       
+else:
+    print("wrong pin please try again")
